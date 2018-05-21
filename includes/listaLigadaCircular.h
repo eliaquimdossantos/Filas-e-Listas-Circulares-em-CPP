@@ -6,25 +6,25 @@
 #include "node.h"
 
 using namespace std;
-/* Implementacao da classe ListaLigadaCircular */
+/* Implementacao da classe ListLigCirc */
 
 /* Para permitir sobrecarregar o operador de insercao
    numa classe template como friend eh preciso adicionar
    o trecho de codigo a seguir */
-template <typename T> class ListaLigadaCircular; // Declaracao antecipada da classe
+template <typename T> class ListLigCirc; // Declaracao antecipada da classe
 template <typename T> // Definicao antecipada do template para o operador de insercao
-std::ostream& operator<<( std::ostream&, ListaLigadaCircular<T> const & );
+std::ostream& operator<<( std::ostream&, ListLigCirc<T> const & );
 // --
 
 template <typename T>
-class ListaLigadaCircular {
+class ListLigCirc {
 private:
 	shared_ptr<Node<T>> cabeca;
 	shared_ptr<Node<T>> cauda;
 	int tamanho;
 public:
-	ListaLigadaCircular();
-	~ListaLigadaCircular();
+	ListLigCirc();
+	~ListLigCirc();
 	bool InsereNoInicio(T _valor);
 	bool InsereNoFinal(T _valor);
 	bool InsereNaPosicao(int pos, T _valor);
@@ -35,22 +35,21 @@ public:
 	bool vazia();
 	int size();
 
-	friend std::ostream& operator<< <T>( std::ostream&, ListaLigadaCircular<T> const &l);
+	friend std::ostream& operator<< <T>( std::ostream&, ListLigCirc<T> const &l);
 };
 
 template <typename T>
-ListaLigadaCircular<T>::ListaLigadaCircular(): cabeca(nullptr), cauda(nullptr), tamanho(0) {}
+ListLigCirc<T>::ListLigCirc(): cabeca(nullptr), cauda(nullptr), tamanho(0) {}
 
 template <typename T>
-ListaLigadaCircular<T>::~ListaLigadaCircular() {
+ListLigCirc<T>::~ListLigCirc() {
 	while (cabeca != this->cauda)
 		cabeca = cabeca->getNext();
 }
 
 template <typename T>
-bool ListaLigadaCircular<T>::InsereNoInicio(T _valor) {
+bool ListLigCirc<T>::InsereNoInicio(T _valor) {
 
-	//obs: ta inserindo atras
 	auto novo = make_shared<Node<T>>(_valor);
 	if (!novo) return false;
 
@@ -72,7 +71,7 @@ bool ListaLigadaCircular<T>::InsereNoInicio(T _valor) {
 }
 
 template <typename T>
-bool ListaLigadaCircular<T>::InsereNoFinal(T _valor) {
+bool ListLigCirc<T>::InsereNoFinal(T _valor) {
 
 
 	if (this->cabeca == nullptr) {
@@ -96,7 +95,7 @@ bool ListaLigadaCircular<T>::InsereNoFinal(T _valor) {
 }
 
 template <typename T>
-bool ListaLigadaCircular<T>::InsereNaPosicao(int pos, T _valor) {
+bool ListLigCirc<T>::InsereNaPosicao(int pos, T _valor) {
 	if (pos<0) return false;
 	if (pos==0)	return InsereNoInicio(_valor);
 	if (pos==tamanho) return InsereNoFinal(_valor);
@@ -121,74 +120,81 @@ bool ListaLigadaCircular<T>::InsereNaPosicao(int pos, T _valor) {
 }
 
 template <typename T>
-bool ListaLigadaCircular<T>::RemoveNoInicio() {
-	if (this->cabeca==nullptr) return false;
-	cabeca = cabeca->getNext();
-	this->tamanho--;
-	return true;
-}
-
-template <typename T>
-bool ListaLigadaCircular<T>::RemoveNoFinal() {
-	if (this->cabeca==nullptr) return false;
-
-	if (this->cabeca->getNext()==this->cauda) {
-		this->cabeca = this->cauda;
+bool ListLigCirc<T>::RemoveNoInicio() {
+	if(!vazia()){
+		if (this->cabeca==nullptr) return false;
+		cabeca = cabeca->getNext();
 		this->tamanho--;
 		return true;
-	}
-
-	auto atual = this->cabeca;
-	while (atual->getNext()->getNext() != this->cauda)
-		atual = atual->getNext();
-
-	this->cauda = atual->getNext();
-	atual->setNext(this->cauda);
-
-	this->tamanho--;
-
-	return true;
+	}else
+		return false;
 }
 
 template <typename T>
-bool ListaLigadaCircular<T>::RemoveNaPosicao(int pos) {
-	if (pos<0) return false;
-	if (pos==0)	return RemoveNoInicio();
-	if (pos==tamanho-1) return RemoveNoFinal();
+bool ListLigCirc<T>::RemoveNoFinal() {
+	if(!vazia()){
+		if (this->cabeca==nullptr) return false;
 
-	if (pos > tamanho-1) return false;
+		if (this->cabeca->getNext()==this->cauda) {
+			this->cabeca = this->cauda;
+			this->tamanho--;
+			return true;
+		}
 
+		auto atual = this->cabeca;
+		while (atual->getNext()->getNext() != this->cauda)
+			atual = atual->getNext();
 
+		this->cauda = atual->getNext();
+		atual->setNext(this->cauda);
 
-	auto atual = this->cabeca;
-	int posAtual = 0;
-	while (atual->getNext()->getNext() != this->cauda && posAtual < (pos-1)) {
-		atual = atual->getNext();
-		posAtual++;
-	}
+		this->tamanho--;
 
-	atual->setNext(atual->getNext()->getNext());
-	this->tamanho--;
-
-	return true;
+		return true;
+	}else
+		return false;
 }
 
 template <typename T>
-bool ListaLigadaCircular<T>::vazia() {
-	return tamanho == 0;
+bool ListLigCirc<T>::RemoveNaPosicao(int pos) {
+	if(!vazia()){
+		if (pos<0) return false;
+		if (pos==0)	return RemoveNoInicio();
+		if (pos==tamanho-1) return RemoveNoFinal();
+
+		if (pos > tamanho-1) return false;
+
+		auto atual = this->cabeca;
+		int posAtual = 0;
+		while (atual->getNext()->getNext() != this->cauda && posAtual < (pos-1)) {
+			atual = atual->getNext();
+			posAtual++;
+		}
+
+		atual->setNext(atual->getNext()->getNext());
+		this->tamanho--;
+
+		return true;
+	}else
+		return false;
 }
 
 template <typename T>
-int ListaLigadaCircular<T>::size() {
+bool ListLigCirc<T>::vazia() {
+	return tamanho <= 0;
+}
+
+template <typename T>
+int ListLigCirc<T>::size() {
 	return this->tamanho;
 }
 
 template <typename T>
-std::ostream& operator<< ( std::ostream& o, ListaLigadaCircular<T> const &l) {
+std::ostream& operator<< ( std::ostream& o, ListLigCirc<T> const &l) {
 	auto atual = l.cabeca;
 
 	for(int i = 0; i < l.tamanho; i++){
-		o << atual->getValor() << " ";
+		o << "Elemento " << i+1 << ": " <<atual->getValor() << endl;
 		atual = atual->getNext();
 	}		
 

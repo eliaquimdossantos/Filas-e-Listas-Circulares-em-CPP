@@ -1,5 +1,5 @@
-#ifndef LCE_H
-#define LCE_H
+#ifndef FC_H
+#define FC_H
 
 #include <memory>
 #include <iostream>
@@ -45,9 +45,25 @@ FilaCircular<T>::~FilaCircular() {
 template <typename T>
 bool FilaCircular<T>::Inserir(T _valor) {
 
-
 	if (this->inicio == nullptr) {
-		return InsereNoInicio(_valor);
+		auto novo = make_shared<Node<T>>(_valor);
+		if (!novo) return false;
+
+		novo->setNext(this->inicio);
+		this->inicio = novo;
+		this->tamanho++;
+
+		auto atual = inicio;  /*!< Auxiliar para percorrer a lista */
+
+		/** @brief Procura o ultimo valor da lista*/
+		for(int i = 0; i < tamanho-1; i++){
+			atual = atual->getNext(); 
+		}
+
+		this->final = atual; /*!< final recebe o endereço do último valor da lista */
+		this->final->setNext(this->inicio); /*!< A cabeça da fila é definida como próximo valor após a final */
+
+		return true;
 	} else {
 		auto atual = this->inicio;
 
@@ -67,30 +83,19 @@ bool FilaCircular<T>::Inserir(T _valor) {
 }
 
 template <typename T>
-bool FilaCircular<T>::RemoveNoFinal() {
-	if (this->inicio==nullptr) return false;
-
-	if (this->inicio->getNext()==this->final) {
-		this->inicio = this->final;
+bool FilaCircular<T>::Remover() {
+	if(!vazia()){
+		if (this->inicio==nullptr) return false;
+		inicio = inicio->getNext();
 		this->tamanho--;
 		return true;
-	}
-
-	auto atual = this->inicio;
-	while (atual->getNext()->getNext() != this->final)
-		atual = atual->getNext();
-
-	this->final = atual->getNext();
-	atual->setNext(this->final);
-
-	this->tamanho--;
-
-	return true;
+	}else
+		return false;
 }
 
 template <typename T>
 bool FilaCircular<T>::vazia() {
-	return tamanho == 0;
+	return tamanho <= 0;
 }
 
 template <typename T>
@@ -103,7 +108,7 @@ std::ostream& operator<< ( std::ostream& o, FilaCircular<T> const &l) {
 	auto atual = l.inicio;
 
 	for(int i = 0; i < l.tamanho; i++){
-		o << atual->getValor() << " ";
+		o << "Elemento " << i+1 << ":" <<atual->getValor() << endl;
 		atual = atual->getNext();
 	}		
 
